@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-
+        "guzzle/guzzle": "*"
     },
     "autoload": {
         "psr-0": { "Rodchyn\\Facebook\\Report": "src/" }
