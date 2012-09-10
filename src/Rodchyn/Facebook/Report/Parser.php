@@ -72,7 +72,7 @@ class Parser
 				$stop = true;
 				$header = array();
 				$rows = array();
-				foreach (file($file->getFilename()) as $line) {
+				foreach (file($extractDir . '/' . $file->getFilename()) as $line) {
 					if(preg_match('/^SH.*credits_detail$/', $line)) { $stop = false; continue; }
 					if(preg_match('/^SF/', $line)) { $stop = true; continue; }
 					
