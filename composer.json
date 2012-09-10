@@ -13,7 +13,8 @@
         }
     ],
     "require": {
-        "guzzle/guzzle": "*"
+        "guzzle/guzzle": "*",
+        "symfony/finder": "*"
     },
     "autoload": {
         "psr-0": { "Rodchyn\\Facebook\\Report": "src/" }
