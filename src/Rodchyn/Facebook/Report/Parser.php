@@ -39,9 +39,8 @@ class Parser
 		
 		$dailyDigestUrl = "https://paymentreports.facebook.com/{company_id}/report?date={date}&type=digest&access_token={access_token}";
 		
-		$date = date('Y-m-d', strtotime('yesterday'));
 		$client = new Client($dailyDigestUrl, array(
-				'company_id' => $companyId,
+				'company_id' => $this->companyId,
 				'access_token' => $access_token,
 				'date' => $date
 		));
