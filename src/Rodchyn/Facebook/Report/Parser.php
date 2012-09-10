@@ -3,8 +3,8 @@
 namespace Rodchyn\Facebook\Report;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Guzzle\Service\Client;
 use Symfony\Component\Finder\Finder;
+use Guzzle\Service\Client;
 
 class Parser 
 {
@@ -50,7 +50,7 @@ class Parser
 			throw new \Exception("Can't download daily detail report");
 		}
 		 
-		$cacheDir = $this->getContainer()->get('kernel')->getRootDir() . '/cache';
+		$cacheDir = $this->container->get('kernel')->getRootDir() . '/cache';
 		$extractDir = $cacheDir . '/tmp-facebook-report';
 		@mkdir($extractDir, 0755, true);
 		$zipFileName = tempnam($extractDir, "fb_detail_report").".zip";
@@ -69,7 +69,27 @@ class Parser
 			$finder->files()->name($this->companyId . '_digest_*.csv')->date('since 1 minute ago')->in($extractDir);
 			
 			foreach($finder as $file) {
-				print $file->getFilename()."\n";
+				$stop = true;
+				$header = array();
+				$rows = array();
+				foreach (file($file->getFilename()) as $line) {
+					if(preg_match('/^SH.*credits_detail$/', $line)) { $stop = false; continue; }
+					if(preg_match('/^SF/', $line)) { $stop = true; continue; }
+					
+					if(preg_match('/^CH/', $line)) {
+						$line = preg_replace('/^CH,/', '', $line);
+						$header = preg_split('/\s*,\s*/', $line);
+					}
+					
+					if(!$stop) {
+						$line = preg_replace('/^CD,/', '', $line);
+						$columns = preg_split('/,/', $line);
+						$row = array_combine($header, $columns);
+						$rows[] = $row;
+					}
+				}
+				
+				var_dump($rows);
 			}
 			
 		} else {
