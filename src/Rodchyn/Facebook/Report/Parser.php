@@ -21,6 +21,9 @@ class Parser
 		$this->companySecret = $companySecret;
 	}
 	
+	/**
+	 * Get digest credits
+	 */
 	public function getDigest($date)
 	{
 		$client = new Client('https://graph.facebook.com/oauth/access_token?client_id={company_id}&client_secret={company_secret}&grant_type=client_credentials', array(
@@ -66,30 +69,33 @@ class Parser
 			
 			
 			$finder = new Finder();
-			$finder->files()->name($this->companyId . '_digest_*.csv')->date('since 1 minute ago')->in($extractDir);
+			$finder->files()->name($this->companyId . '_digest_*.csv')->in($extractDir);
 			
 			foreach($finder as $file) {
 				$stop = true;
 				$header = array();
 				$rows = array();
-				foreach (file($extractDir . '/' . $file->getFilename()) as $line) {
-					if(preg_match('/^SH.*credits_detail$/', $line)) { $stop = false; continue; }
+				foreach (file($file->getRealpath()) as $line) {
+					if(preg_match('/^SH.*credits_digest$/', $line)) { $stop = false; continue; }
 					if(preg_match('/^SF/', $line)) { $stop = true; continue; }
 					
 					if(preg_match('/^CH/', $line)) {
 						$line = preg_replace('/^CH,/', '', $line);
-						$header = preg_split('/\s*,\s*/', $line);
+						$header = str_getcsv($line);
+						continue;
 					}
 					
 					if(!$stop) {
-						$line = preg_replace('/^CD,/', '', $line);
-						$columns = preg_split('/,/', $line);
+						$line = preg_replace('/^SD,/', '', $line);
+						$columns = str_getcsv ( $line );
 						$row = array_combine($header, $columns);
 						$rows[] = $row;
 					}
 				}
+
+				@unlink($file->getRealpath());
 				
-				var_dump($rows);
+				return $rows;
 			}
 			
 		} else {
